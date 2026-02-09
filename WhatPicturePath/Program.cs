@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Windows.Forms;
 
 namespace WhatPicturePath;
@@ -181,12 +182,22 @@ internal static class Program
     private static string[] ParseFilePaths(string input)
     {
         var paths = new List<string>();
-        var currentPath = new System.Text.StringBuilder();
+        var currentPath = new StringBuilder();
         var inQuotes = false;
+        var escapeNext = false;
 
         foreach (char c in input)
         {
-            if (c == '"' || c == '\'')
+            if (escapeNext)
+            {
+                currentPath.Append(c);
+                escapeNext = false;
+            }
+            else if (c == '\\')
+            {
+                escapeNext = true;
+            }
+            else if (c == '"' || c == '\'')
             {
                 inQuotes = !inQuotes;
             }
@@ -274,15 +285,42 @@ internal static class Program
     {
         foreach (var filePath in selectedFiles)
         {
-            var fileProtocolPath = new Uri(filePath).AbsoluteUri;
-            Console.WriteLine(fileProtocolPath);
+            if (TryConvertToFileProtocolPath(filePath, out var protocolPath))
+            {
+                Console.WriteLine(protocolPath);
+            }
         }
     }
 
     private static void OutputWithCommas(List<string> selectedFiles)
     {
-        var paths = selectedFiles.Select(filePath => new Uri(filePath).AbsoluteUri);
-        Console.WriteLine(string.Join(", ", paths));
+        var validPaths = selectedFiles
+            .Where(filePath => TryConvertToFileProtocolPath(filePath, out _))
+            .ToList();
+        Console.WriteLine(
+            string.Join(
+                ", ",
+                validPaths.Select(filePath =>
+                    TryConvertToFileProtocolPath(filePath, out var protocolPath)
+                        ? protocolPath
+                        : string.Empty
+                )
+            )
+        );
+    }
+
+    private static bool TryConvertToFileProtocolPath(string filePath, out string protocolPath)
+    {
+        try
+        {
+            protocolPath = new Uri(filePath).AbsoluteUri;
+            return true;
+        }
+        catch
+        {
+            protocolPath = string.Empty;
+            return false;
+        }
     }
 
     private static OpenFileDialog CreateOpenFileDialog()
