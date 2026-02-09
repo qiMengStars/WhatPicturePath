@@ -32,6 +32,18 @@ jobs:
         dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=false -p:Optimize=true -o ./publish/standalone
       working-directory: ./WhatPicturePath
 
+    - name: Prepare portable executable for release
+      run: |
+        copy ".\publish\portable\WhatPicturePath.exe" ".\publish\portable\WhatPicturePath_Portable.exe"
+      shell: cmd
+      working-directory: ./WhatPicturePath
+
+    - name: Prepare standalone executable for release
+      run: |
+        copy ".\publish\standalone\WhatPicturePath.exe" ".\publish\standalone\WhatPicturePath_Standalone.exe"
+      shell: cmd
+      working-directory: ./WhatPicturePath
+
     - name: Upload portable artifact
       uses: actions/upload-artifact@v4
       with:
@@ -63,6 +75,12 @@ jobs:
         name: standalone-executable
         path: ./standalone
 
+    - name: Rename downloaded executables for release
+      run: |
+        ren "portable\WhatPicturePath.exe" "WhatPicturePath_Portable.exe"
+        ren "standalone\WhatPicturePath.exe" "WhatPicturePath_Standalone.exe"
+      shell: cmd
+
     - name: Get current date for release notes
       run: |
         echo "RELEASE_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
@@ -87,5 +105,5 @@ jobs:
           - **Portable Version**: Requires .NET 10.0 Desktop Runtime to be installed on the target machine. Download from [Microsoft](https://dotnet.microsoft.com/download/dotnet/10.0).
           - **Standalone Version**: Contains all necessary runtime components. Works on any Windows 10/11 machine without additional installations.
         files: |
-          ./portable/WhatPicturePath.exe
-          ./standalone/WhatPicturePath.exe
+          ./portable/WhatPicturePath_Portable.exe
+          ./standalone/WhatPicturePath_Standalone.exe
