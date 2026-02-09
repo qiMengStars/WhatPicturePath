@@ -24,37 +24,25 @@ jobs:
 
     - name: Build portable executable (without runtime)
       run: |
-        dotnet publish -c Release -r win-x64 --self-contained false -o ./publish/portable -p:PublishTrimmed=false -p:Optimize=true -p:UseAppHost=true
+        dotnet publish -c Release -r win-x64 --self-contained false -o ./publish/portable -p:PublishTrimmed=false -p:Optimize=true -p:UseAppHost=true -p:AssemblyName="WhatPicturePath_Portable"
       working-directory: ./WhatPicturePath
 
     - name: Build standalone executable (with embedded runtime)
       run: |
-        dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=false -p:Optimize=true -o ./publish/standalone
-      working-directory: ./WhatPicturePath
-
-    - name: Prepare portable executable for release
-      run: |
-        copy ".\publish\portable\WhatPicturePath.exe" ".\publish\portable\WhatPicturePath_Portable.exe"
-      shell: cmd
-      working-directory: ./WhatPicturePath
-
-    - name: Prepare standalone executable for release
-      run: |
-        copy ".\publish\standalone\WhatPicturePath.exe" ".\publish\standalone\WhatPicturePath_Standalone.exe"
-      shell: cmd
+        dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=false -p:Optimize=true -o ./publish/standalone -p:AssemblyName="WhatPicturePath_Standalone"
       working-directory: ./WhatPicturePath
 
     - name: Upload portable artifact
       uses: actions/upload-artifact@v4
       with:
         name: portable-executable
-        path: ./WhatPicturePath/publish/portable/
+        path: ./WhatPicturePath/publish/portable/WhatPicturePath_Portable.exe
 
     - name: Upload standalone artifact
       uses: actions/upload-artifact@v4
       with:
         name: standalone-executable
-        path: ./WhatPicturePath/publish/standalone/
+        path: ./WhatPicturePath/publish/standalone/WhatPicturePath_Standalone.exe
 
   release:
     needs: build
@@ -74,12 +62,6 @@ jobs:
       with:
         name: standalone-executable
         path: ./standalone
-
-    - name: Rename downloaded executables for release
-      run: |
-        ren "portable\WhatPicturePath.exe" "WhatPicturePath_Portable.exe"
-        ren "standalone\WhatPicturePath.exe" "WhatPicturePath_Standalone.exe"
-      shell: cmd
 
     - name: Get current date for release notes
       run: |
