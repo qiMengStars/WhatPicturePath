@@ -73,7 +73,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         tag_name: v${{ github.run_number }}
-        release_name: Release ${{ github.run_number }} - ${{ env.RELEASE_DATE }}
+        name: Release ${{ github.run_number }} - ${{ env.RELEASE_DATE }}
         draft: false
         prerelease: false
         body: |
