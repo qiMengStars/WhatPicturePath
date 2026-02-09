@@ -16,10 +16,13 @@
     <value>2. Add files by pasting paths</value>
   </data>
   <data name="MenuOption3">
-    <value>3. Output all File protocol paths and exit</value>
+    <value>3. Import images from folder</value>
+  </data>
+  <data name="MenuOption4">
+    <value>4. Output all File protocol paths and exit</value>
   </data>
   <data name="MenuPrompt">
-    <value>Enter option (1-3): </value>
+    <value>Enter option (1-4): </value>
   </data>
   <data name="PromptFilePath">
     <value>File path: </value>
@@ -53,6 +56,27 @@
   </data>
   <data name="AddNoSelection">
     <value>No files selected</value>
+  </data>
+  <data name="FolderDialogTitle">
+    <value>Select a folder</value>
+  </data>
+  <data name="FolderRecursivePrompt">
+    <value>Include subfolders?</value>
+  </data>
+  <data name="FolderRecursiveYes">
+    <value>1. Yes (include all subfolders)</value>
+  </data>
+  <data name="FolderRecursiveNo">
+    <value>2. No (current folder only)</value>
+  </data>
+  <data name="FolderRecursivePromptSuffix">
+    <value>Enter option (1-2): </value>
+  </data>
+  <data name="FolderAddSuccess">
+    <value>Successfully added {0} file(s) (skipped {1} duplicate or invalid files)</value>
+  </data>
+  <data name="FolderNoSelection">
+    <value>No folder selected</value>
   </data>
   <data name="PasteNoInput">
     <value>No file paths entered</value>

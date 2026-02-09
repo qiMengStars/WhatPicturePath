@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
@@ -7,7 +9,7 @@ namespace WhatPicturePath;
 
 internal static class Program
 {
-    private const string Filter =
+    private const string FileFilter =
         "图片文件|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tiff;*.webp|所有文件|*.*";
 
     private static readonly string[] SupportedExtensions =
@@ -45,6 +47,10 @@ internal static class Program
                     break;
 
                 case '3':
+                    SelectFolderViaWindowsDialog(selectedFiles);
+                    break;
+
+                case '4':
                     if (selectedFiles.Count > 0)
                     {
                         OutputAllFileProtocolPaths(selectedFiles);
@@ -111,6 +117,7 @@ internal static class Program
         Console.WriteLine(LocalizationHelper.GetString("MenuOption1"));
         Console.WriteLine(LocalizationHelper.GetString("MenuOption2"));
         Console.WriteLine(LocalizationHelper.GetString("MenuOption3"));
+        Console.WriteLine(LocalizationHelper.GetString("MenuOption4"));
         Console.WriteLine();
         Console.Write(LocalizationHelper.GetString("MenuPrompt"));
     }
@@ -177,6 +184,59 @@ internal static class Program
         {
             ShowError(LocalizationHelper.GetString("AddNoNew"));
         }
+    }
+
+    private static void SelectFolderViaWindowsDialog(List<string> selectedFiles)
+    {
+        using var folderBrowserDialog = CreateFolderBrowserDialog();
+
+        if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+        {
+            var folderPath = folderBrowserDialog.SelectedPath;
+            var searchOption = AskRecursiveSearchOption()
+                ? SearchOption.AllDirectories
+                : SearchOption.TopDirectoryOnly;
+
+            var filePaths = Directory.GetFiles(folderPath, "*.*", searchOption);
+
+            var imageFiles = filePaths.Where(filePath => IsFileValid(filePath)).ToArray();
+
+            var addedCount = AddFilesToList(selectedFiles, imageFiles);
+
+            if (addedCount > 0)
+            {
+                ShowSuccess(
+                    LocalizationHelper.GetString(
+                        "FolderAddSuccess",
+                        addedCount,
+                        imageFiles.Length - addedCount
+                    )
+                );
+            }
+            else
+            {
+                ShowError(LocalizationHelper.GetString("AddNoNew"));
+            }
+        }
+        else
+        {
+            ShowInfo(LocalizationHelper.GetString("FolderNoSelection"));
+        }
+    }
+
+    private static bool AskRecursiveSearchOption()
+    {
+        Console.WriteLine();
+        Console.WriteLine(LocalizationHelper.GetString("FolderRecursivePrompt"));
+        Console.WriteLine($"  1. {LocalizationHelper.GetString("FolderRecursiveYes")}");
+        Console.WriteLine($"  2. {LocalizationHelper.GetString("FolderRecursiveNo")}");
+        Console.WriteLine();
+        Console.Write(LocalizationHelper.GetString("FolderRecursivePromptSuffix"));
+
+        var choice = TryReadKey();
+        Console.WriteLine();
+
+        return choice == '1';
     }
 
     private static string[] ParseFilePaths(string input)
@@ -328,11 +388,16 @@ internal static class Program
         return new OpenFileDialog
         {
             Title = LocalizationHelper.GetString("DialogTitle"),
-            Filter = Filter,
+            Filter = FileFilter,
             Multiselect = true,
             CheckFileExists = true,
             CheckPathExists = true,
         };
+    }
+
+    private static FolderBrowserDialog CreateFolderBrowserDialog()
+    {
+        return new FolderBrowserDialog { UseDescriptionForTitle = true };
     }
 
     private static void ShowSuccess(string message)

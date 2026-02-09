@@ -16,10 +16,13 @@
     <value>2. 通过粘贴文件路径添加文件</value>
   </data>
   <data name="MenuOption3">
-    <value>3. 输出所有 File 协议路径并退出</value>
+    <value>3. 通过文件夹选择导入图片</value>
+  </data>
+  <data name="MenuOption4">
+    <value>4. 输出所有 File 协议路径并退出</value>
   </data>
   <data name="MenuPrompt">
-    <value>请输入选项 (1-3): </value>
+    <value>请输入选项 (1-4): </value>
   </data>
   <data name="PromptFilePath">
     <value>文件路径: </value>
@@ -53,6 +56,27 @@
   </data>
   <data name="AddNoSelection">
     <value>未选择任何文件</value>
+  </data>
+  <data name="FolderDialogTitle">
+    <value>请选择文件夹</value>
+  </data>
+  <data name="FolderRecursivePrompt">
+    <value>是否包含子文件夹？</value>
+  </data>
+  <data name="FolderRecursiveYes">
+    <value>是（包含所有子文件夹）</value>
+  </data>
+  <data name="FolderRecursiveNo">
+    <value>否（仅当前文件夹）</value>
+  </data>
+  <data name="FolderRecursivePromptSuffix">
+    <value>请输入选项 (1-2): </value>
+  </data>
+  <data name="FolderAddSuccess">
+    <value>成功添加 {0} 个文件（跳过了 {1} 个重复或无效文件）</value>
+  </data>
+  <data name="FolderNoSelection">
+    <value>未选择任何文件夹</value>
   </data>
   <data name="PasteNoInput">
     <value>未输入文件路径</value>
