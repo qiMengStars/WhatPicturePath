@@ -26,7 +26,18 @@ internal static class Program
     [STAThread]
     private static void Main()
     {
-        LocalizationHelper.Initialize();
+        // 检查是否能够正常初始化
+        try
+        {
+            LocalizationHelper.Initialize();
+        }
+        catch (Exception ex)
+        {
+            // 如果初始化失败，可能是缺少运行时
+            ShowRuntimeMissingError(ex);
+            return;
+        }
+
         var selectedFiles = new List<string>();
 
         while (true)
@@ -69,6 +80,24 @@ internal static class Program
                     break;
             }
         }
+    }
+
+    private static void ShowRuntimeMissingError(Exception ex)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("错误：缺少必要的 .NET 运行时");
+        Console.WriteLine();
+        Console.WriteLine("此应用程序需要 .NET 10.0 Desktop Runtime 才能运行。");
+        Console.WriteLine();
+        Console.WriteLine("请从以下链接下载并安装：");
+        Console.WriteLine("https://dotnet.microsoft.com/download/dotnet/10.0");
+        Console.WriteLine();
+        Console.WriteLine($"详细错误信息：{ex.Message}");
+        Console.ResetColor();
+        
+        Console.WriteLine();
+        Console.WriteLine("按任意键退出...");
+        TryReadKey();
     }
 
     private static char TryReadKey()

@@ -5,6 +5,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishReadyToRun>false</PublishReadyToRun>
+    <IncludeAllContentForSelfExtract>false</IncludeAllContentForSelfExtract>
+    <GeneratePathProperty>true</GeneratePathProperty>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Windows.Forms" Version="*" />

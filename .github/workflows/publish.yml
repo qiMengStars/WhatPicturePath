@@ -24,19 +24,40 @@ jobs:
 
     - name: Build portable executable (without runtime)
       run: |
-        dotnet publish -c Release -r win-x64 --self-contained false -o ./publish/portable -p:PublishTrimmed=false -p:Optimize=true -p:UseAppHost=true -p:AssemblyName="WhatPicturePath_Portable"
+        dotnet publish -c Release -r win-x64 --self-contained false -o ./publish/portable -p:PublishTrimmed=false -p:Optimize=true -p:UseAppHost=true
       working-directory: ./WhatPicturePath
 
     - name: Build standalone executable (with embedded runtime)
       run: |
-        dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=false -p:Optimize=true -o ./publish/standalone -p:AssemblyName="WhatPicturePath_Standalone"
+        dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=false -p:Optimize=true -o ./publish/standalone
+      working-directory: ./WhatPicturePath
+
+    - name: Rename portable executable
+      run: |
+        ren ".\publish\portable\WhatPicturePath.exe" "WhatPicturePath_Portable.exe"
+        ren ".\publish\portable\WhatPicturePath.dll" "WhatPicturePath_Portable.dll"
+      shell: cmd
+      working-directory: ./WhatPicturePath
+
+    - name: Rename standalone executable
+      run: |
+        ren ".\publish\standalone\WhatPicturePath.exe" "WhatPicturePath_Standalone.exe"
+      shell: cmd
+      working-directory: ./WhatPicturePath
+
+    - name: Copy portable files to single directory
+      run: |
+        mkdir portable_final
+        copy ".\publish\portable\WhatPicturePath_Portable.exe" ".\portable_final\WhatPicturePath_Portable.exe"
+        copy ".\publish\portable\WhatPicturePath_Portable.dll" ".\portable_final\WhatPicturePath_Portable.dll"
+      shell: cmd
       working-directory: ./WhatPicturePath
 
     - name: Upload portable artifact
       uses: actions/upload-artifact@v4
       with:
         name: portable-executable
-        path: ./WhatPicturePath/publish/portable/WhatPicturePath_Portable.exe
+        path: ./WhatPicturePath/portable_final/*
 
     - name: Upload standalone artifact
       uses: actions/upload-artifact@v4
@@ -63,6 +84,14 @@ jobs:
         name: standalone-executable
         path: ./standalone
 
+    - name: List portable directory contents
+      run: dir "portable"
+      shell: cmd
+
+    - name: List standalone directory contents
+      run: dir "standalone"
+      shell: cmd
+
     - name: Get current date for release notes
       run: |
         echo "RELEASE_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
@@ -78,14 +107,15 @@ jobs:
         prerelease: false
         body: |
           Release ${{ github.run_number }} built on ${{ env.RELEASE_DATE }}
-          
+
           ## Artifacts
-          - WhatPicturePath_Portable.exe: Portable version (requires .NET 10.0 runtime installed)
+          - WhatPicturePath_Portable.exe + WhatPicturePath_Portable.dll: Portable version (requires .NET 10.0 runtime installed)
           - WhatPicturePath_Standalone.exe: Standalone version (includes runtime, recommended for most users)
-          
+
           ## Usage Notes
-          - **Portable Version**: Requires .NET 10.0 Desktop Runtime to be installed on the target machine. Download from [Microsoft](https://dotnet.microsoft.com/download/dotnet/10.0).
+          - **Portable Version**: Requires .NET 10.0 Desktop Runtime to be installed on the target machine. Download from [Microsoft](https://dotnet.microsoft.com/download/dotnet/10.0). Both .exe and .dll files must be in the same directory.
           - **Standalone Version**: Contains all necessary runtime components. Works on any Windows 10/11 machine without additional installations.
         files: |
           ./portable/WhatPicturePath_Portable.exe
+          ./portable/WhatPicturePath_Portable.dll
           ./standalone/WhatPicturePath_Standalone.exe
