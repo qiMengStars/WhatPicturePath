@@ -6,7 +6,6 @@ namespace WhatPicturePath;
 
 internal static class Program
 {
-    private const string DialogTitle = "请选择图片文件";
     private const string Filter =
         "图片文件|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tiff;*.webp|所有文件|*.*";
 
@@ -24,6 +23,7 @@ internal static class Program
     [STAThread]
     private static void Main()
     {
+        LocalizationHelper.Initialize();
         var selectedFiles = new List<string>();
 
         while (true)
@@ -51,13 +51,13 @@ internal static class Program
                     }
                     else
                     {
-                        ShowError("当前没有选择任何文件，请先选择文件。");
+                        ShowError(LocalizationHelper.GetString("ErrorNoFilesSelected"));
                         TryReadKey();
                     }
                     break;
 
                 default:
-                    ShowError("无效选项，请重新选择。");
+                    ShowError(LocalizationHelper.GetString("ErrorInvalidOption"));
                     TryReadKey();
                     break;
             }
@@ -103,16 +103,15 @@ internal static class Program
 
     private static void ShowMainMenu(int selectedCount)
     {
-        Console.WriteLine("=== 图片文件路径获取工具 ===");
+        Console.WriteLine($"=== {LocalizationHelper.GetString("TitleMain")} ===");
         Console.WriteLine();
-        Console.WriteLine($"当前已选择 {selectedCount} 个文件");
+        Console.WriteLine(LocalizationHelper.GetString("MenuSelectedCount", selectedCount));
         Console.WriteLine();
-        Console.WriteLine("请选择操作：");
-        Console.WriteLine("1. 通过 Windows 文件选择器添加文件");
-        Console.WriteLine("2. 通过粘贴文件路径添加文件");
-        Console.WriteLine("3. 输出所有 File 协议路径并退出");
+        Console.WriteLine(LocalizationHelper.GetString("MenuOption1"));
+        Console.WriteLine(LocalizationHelper.GetString("MenuOption2"));
+        Console.WriteLine(LocalizationHelper.GetString("MenuOption3"));
         Console.WriteLine();
-        Console.Write("请输入选项 (1-3): ");
+        Console.Write(LocalizationHelper.GetString("MenuPrompt"));
     }
 
     private static void SelectFilesViaWindowsDialog(List<string> selectedFiles)
@@ -126,32 +125,36 @@ internal static class Program
             if (addedCount > 0)
             {
                 ShowSuccess(
-                    $"成功添加 {addedCount} 个文件（跳过了 {openFileDialog.FileNames.Length - addedCount} 个重复或无效文件）"
+                    LocalizationHelper.GetString(
+                        "AddSuccess",
+                        addedCount,
+                        openFileDialog.FileNames.Length - addedCount
+                    )
                 );
             }
             else
             {
-                ShowError("没有添加任何新文件（所有文件都已存在或格式不支持）");
+                ShowError(LocalizationHelper.GetString("AddNoNew"));
             }
         }
         else
         {
-            ShowInfo("未选择任何文件");
+            ShowInfo(LocalizationHelper.GetString("AddNoSelection"));
         }
     }
 
     private static void SelectFilesViaPathPaste(List<string> selectedFiles)
     {
         Console.WriteLine();
-        Console.WriteLine("请粘贴文件路径（多个文件用空格或分号分隔）：");
-        Console.WriteLine("提示：可以用引号包裹包含空格的路径");
+        Console.WriteLine(LocalizationHelper.GetString("PasteHint"));
+        Console.WriteLine(LocalizationHelper.GetString("PasteQuoteHint"));
         Console.WriteLine();
-        Console.Write("文件路径: ");
+        Console.Write(LocalizationHelper.GetString("PromptFilePath"));
         var input = Console.ReadLine();
 
         if (string.IsNullOrWhiteSpace(input))
         {
-            ShowInfo("未输入文件路径");
+            ShowInfo(LocalizationHelper.GetString("PasteNoInput"));
             TryReadKey();
             return;
         }
@@ -162,12 +165,16 @@ internal static class Program
         if (addedCount > 0)
         {
             ShowSuccess(
-                $"成功添加 {addedCount} 个文件（跳过了 {filePaths.Length - addedCount} 个重复、不存在或格式不支持的文件）"
+                LocalizationHelper.GetString(
+                    "PasteAddSuccess",
+                    addedCount,
+                    filePaths.Length - addedCount
+                )
             );
         }
         else
         {
-            ShowError("没有添加任何新文件（所有文件都已存在、不存在或格式不支持）");
+            ShowError(LocalizationHelper.GetString("AddNoNew"));
         }
     }
 
@@ -235,15 +242,14 @@ internal static class Program
     private static void OutputAllFileProtocolPaths(List<string> selectedFiles)
     {
         TryClearConsole();
-        Console.WriteLine("=== File 协议路径 ===");
+        Console.WriteLine($"=== {LocalizationHelper.GetString("OutputTitle")} ===");
         Console.WriteLine();
-        Console.WriteLine($"共 {selectedFiles.Count} 个文件");
+        Console.WriteLine(LocalizationHelper.GetString("OutputTotalCount", selectedFiles.Count));
         Console.WriteLine();
-        Console.WriteLine("请选择输出格式：");
-        Console.WriteLine("1. 换行分隔");
-        Console.WriteLine("2. 逗号分隔（数组形式）");
+        Console.WriteLine(LocalizationHelper.GetString("OutputFormatOption1"));
+        Console.WriteLine(LocalizationHelper.GetString("OutputFormatOption2"));
         Console.WriteLine();
-        Console.Write("请输入选项 (1-2): ");
+        Console.Write(LocalizationHelper.GetString("OutputFormatPrompt"));
 
         var choice = TryReadKey();
 
@@ -260,7 +266,7 @@ internal static class Program
         }
 
         Console.WriteLine();
-        Console.WriteLine("按任意键退出...");
+        Console.WriteLine(LocalizationHelper.GetString("ExitPrompt"));
         TryReadKey();
     }
 
@@ -283,7 +289,7 @@ internal static class Program
     {
         return new OpenFileDialog
         {
-            Title = DialogTitle,
+            Title = LocalizationHelper.GetString("DialogTitle"),
             Filter = Filter,
             Multiselect = true,
             CheckFileExists = true,
@@ -295,7 +301,7 @@ internal static class Program
     {
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine();
-        Console.WriteLine($"✓ {message}");
+        Console.WriteLine(LocalizationHelper.GetString("Success", message));
         Console.ResetColor();
     }
 
@@ -303,7 +309,7 @@ internal static class Program
     {
         Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine();
-        Console.WriteLine($"✗ {message}");
+        Console.WriteLine(LocalizationHelper.GetString("Error", message));
         Console.ResetColor();
     }
 
@@ -311,7 +317,7 @@ internal static class Program
     {
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine();
-        Console.WriteLine($"ℹ {message}");
+        Console.WriteLine(LocalizationHelper.GetString("Info", message));
         Console.ResetColor();
     }
 }
