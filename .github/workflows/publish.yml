@@ -28,7 +28,7 @@ jobs:
       
     - name: Build standalone executable (with embedded runtime)
       run: |
-        dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=true -p:Optimize=true -o ./publish/standalone
+        dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=false -p:Optimize=true -o ./publish/standalone
       working-directory: ./WhatPicturePath
       
     - name: Upload portable artifact
