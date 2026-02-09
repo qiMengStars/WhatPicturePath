@@ -1,0 +1,94 @@
+name: Build and Publish Release
+
+on:
+  workflow_dispatch: # 手动触发
+  
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        
+    - name: Restore dependencies
+      run: |
+        dotnet restore
+      working-directory: ./WhatPicturePath
+      
+    - name: Build portable executable (without runtime)
+      run: |
+        dotnet publish -c Release -r win-x64 --self-contained false -o ./publish/portable -p:PublishTrimmed=false -p:Optimize=true
+      working-directory: ./WhatPicturePath
+      
+    - name: Build standalone executable (with embedded runtime)
+      run: |
+        dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=true -p:Optimize=true -o ./publish/standalone
+      working-directory: ./WhatPicturePath
+      
+    - name: Upload portable artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: portable-executable
+        path: ./WhatPicturePath/publish/portable/
+        
+    - name: Upload standalone artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: standalone-executable
+        path: ./WhatPicturePath/publish/standalone/
+        
+  release:
+    needs: build
+    runs-on: windows-latest
+    permissions:
+      contents: write
+      
+    steps:
+    - name: Download portable executable
+      uses: actions/download-artifact@v4
+      with:
+        name: portable-executable
+        path: ./portable
+        
+    - name: Download standalone executable
+      uses: actions/download-artifact@v4
+      with:
+        name: standalone-executable
+        path: ./standalone
+        
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: Release ${{ github.run_number }}
+        draft: false
+        prerelease: false
+        
+    - name: Upload Portable Executable to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./portable/WhatPicturePath.exe
+        asset_name: WhatPicturePath_Portable.exe
+        asset_content_type: application/octet-stream
+        
+    - name: Upload Standalone Executable to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./standalone/WhatPicturePath.exe
+        asset_name: WhatPicturePath_Standalone.exe
+        asset_content_type: application/octet-stream
