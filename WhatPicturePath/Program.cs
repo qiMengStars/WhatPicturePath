@@ -135,10 +135,11 @@ internal static class Program
             }
         }
         else
-                    {
-                        ShowInfo("未选择任何文件");
-                    }
-            }
+        {
+            ShowInfo("未选择任何文件");
+        }
+    }
+
     private static void SelectFilesViaPathPaste(List<string> selectedFiles)
     {
         Console.WriteLine();
@@ -165,10 +166,11 @@ internal static class Program
             );
         }
         else
-                    {
-                        ShowError("没有添加任何新文件（所有文件都已存在、不存在或格式不支持）");
-                    }
-            }
+        {
+            ShowError("没有添加任何新文件（所有文件都已存在、不存在或格式不支持）");
+        }
+    }
+
     private static string[] ParseFilePaths(string input)
     {
         var paths = new List<string>();
@@ -200,36 +202,30 @@ internal static class Program
             paths.Add(currentPath.ToString().Trim());
         }
 
-        return paths.ToArray();
+        return [.. paths];
     }
 
     private static int AddFilesToList(List<string> selectedFiles, string[] filePaths)
     {
-        var addedCount = 0;
-
-        foreach (var filePath in filePaths)
-        {
-            if (
+        var validNewFiles = filePaths
+            .Where(filePath =>
                 IsFileValid(filePath)
                 && !selectedFiles.Contains(filePath, StringComparer.OrdinalIgnoreCase)
             )
-            {
-                selectedFiles.Add(filePath);
-                addedCount++;
-            }
-        }
+            .ToList();
 
-        return addedCount;
+        selectedFiles.AddRange(validNewFiles);
+        return validNewFiles.Count;
     }
 
     private static bool IsFileValid(string filePath)
     {
-        if (!System.IO.File.Exists(filePath))
+        if (!File.Exists(filePath))
         {
             return false;
         }
 
-        var extension = System.IO.Path.GetExtension(filePath).ToLowerInvariant();
+        var extension = Path.GetExtension(filePath).ToLowerInvariant();
         return Array.Exists(
             SupportedExtensions,
             ext => ext.Equals(extension, StringComparison.OrdinalIgnoreCase)
@@ -279,12 +275,7 @@ internal static class Program
 
     private static void OutputWithCommas(List<string> selectedFiles)
     {
-        var paths = new List<string>();
-        foreach (var filePath in selectedFiles)
-        {
-            var fileProtocolPath = new Uri(filePath).AbsoluteUri;
-            paths.Add(fileProtocolPath);
-        }
+        var paths = selectedFiles.Select(filePath => new Uri(filePath).AbsoluteUri);
         Console.WriteLine(string.Join(", ", paths));
     }
 
