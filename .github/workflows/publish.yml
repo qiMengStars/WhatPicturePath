@@ -97,6 +97,11 @@ jobs:
         echo "RELEASE_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
       shell: bash
 
+    - name: Create ZIP for portable version
+      run: |
+        powershell Compress-Archive -Path "./portable/*" -DestinationPath "./WhatPicturePath_Portable.zip" -Force
+      shell: cmd
+
     - name: Create Release
       id: create_release
       uses: softprops/action-gh-release@v2
@@ -109,13 +114,12 @@ jobs:
           Release ${{ github.run_number }} built on ${{ env.RELEASE_DATE }}
 
           ## Artifacts
-          - WhatPicturePath_Portable.exe + WhatPicturePath_Portable.dll: Portable version (requires .NET 10.0 runtime installed)
+          - WhatPicturePath_Portable.zip: Portable version (requires .NET 10.0 runtime installed)
           - WhatPicturePath_Standalone.exe: Standalone version (includes runtime, recommended for most users)
 
           ## Usage Notes
-          - **Portable Version**: Requires .NET 10.0 Desktop Runtime to be installed on the target machine. Download from [Microsoft](https://dotnet.microsoft.com/download/dotnet/10.0). Both .exe and .dll files must be in the same directory.
+          - **Portable Version**: Requires .NET 10.0 Desktop Runtime to be installed on the target machine. Download from [Microsoft](https://dotnet.microsoft.com/download/dotnet/10.0). Extract the ZIP and run the .exe file.
           - **Standalone Version**: Contains all necessary runtime components. Works on any Windows 10/11 machine without additional installations.
         files: |
-          ./portable/WhatPicturePath_Portable.exe
-          ./portable/WhatPicturePath_Portable.dll
+          ./WhatPicturePath_Portable.zip
           ./standalone/WhatPicturePath_Standalone.exe
