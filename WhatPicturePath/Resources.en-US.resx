@@ -43,10 +43,13 @@
     <value>1. Newline separated</value>
   </data>
   <data name="OutputFormatOption2">
-    <value>2. Comma separated (array format)</value>
+    <value>2. Comma separated</value>
+  </data>
+  <data name="OutputFormatOption3">
+    <value>3. JSON array format (with quotes)</value>
   </data>
   <data name="OutputFormatPrompt">
-    <value>Enter option (1-2): </value>
+    <value>Enter option (1-3): </value>
   </data>
   <data name="AddSuccess">
     <value>Successfully added {0} file(s) (skipped {1} duplicate or invalid files)</value>

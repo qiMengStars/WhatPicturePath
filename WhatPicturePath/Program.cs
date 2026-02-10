@@ -348,6 +348,7 @@ internal static class Program
         Console.WriteLine();
         Console.WriteLine(LocalizationHelper.GetString("OutputFormatOption1"));
         Console.WriteLine(LocalizationHelper.GetString("OutputFormatOption2"));
+        Console.WriteLine(LocalizationHelper.GetString("OutputFormatOption3"));
         Console.WriteLine();
         Console.Write(LocalizationHelper.GetString("OutputFormatPrompt"));
 
@@ -359,6 +360,10 @@ internal static class Program
         if (choice == '2')
         {
             OutputWithCommas(selectedFiles);
+        }
+        else if (choice == '3')
+        {
+            OutputAsJsonArray(selectedFiles);
         }
         else
         {
@@ -396,6 +401,30 @@ internal static class Program
                 )
             )
         );
+    }
+
+    private static void OutputAsJsonArray(List<string> selectedFiles)
+    {
+        var validPaths = selectedFiles
+            .Where(filePath => TryConvertToFileProtocolPath(filePath, out _))
+            .Select(filePath =>
+            {
+                TryConvertToFileProtocolPath(filePath, out var protocolPath);
+                return $"\"{protocolPath}\"";
+            })
+            .ToList();
+        
+        Console.WriteLine("[");
+        for (int i = 0; i < validPaths.Count; i++)
+        {
+            Console.Write($"  {validPaths[i]}");
+            if (i < validPaths.Count - 1)
+            {
+                Console.Write(",");
+            }
+            Console.WriteLine();
+        }
+        Console.WriteLine("]");
     }
 
     private static bool TryConvertToFileProtocolPath(string filePath, out string protocolPath)
